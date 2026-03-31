@@ -4,9 +4,8 @@
 
     # Redirect HTTP to HTTPS only if it's not already HTTPS
     RewriteCond %{HTTP:X-Forwarded-Proto} !https
-    RewriteCond %{HTTP_HOST} ^nrsm\.in [NC]
     RewriteCond %{SERVER_PORT} 80
-    RewriteRule ^(.*)$ https://nrsm.in/$1 [R,L]
+    RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
 
     # Redirect www to non-www
     RewriteCond %{HTTP_HOST} ^www\.(.*)$ [NC]

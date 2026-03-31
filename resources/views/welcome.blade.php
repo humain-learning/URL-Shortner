@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>nrsm.in - URL Shortener</title>
+  <title>{{ parse_url(config('app.short_url_domain'), PHP_URL_HOST) ?? 'hl.ai' }} - URL Shortener</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lucide-static@latest/font/lucide.css" />
   <style>
     :root {
@@ -233,7 +233,7 @@ nav {
       <div class="logo">
         <div class="logo-box"><i class="fa fa-link"></i></div>
         <div class="logo-text">
-          <h1>nrsm.in</h1>
+          <h1>{{ parse_url(config('app.short_url_domain'), PHP_URL_HOST) ?? 'hl.ai' }}</h1>
           <p class="text-muted">URL Shortener</p>
         </div>
       </div>
@@ -292,7 +292,7 @@ nav {
         <pre>
 {
   "original": "https://example.com/very-long-url",
-  "shortened": "https://nrsm.in/abc123",
+  "shortened": "{{ rtrim(config('app.short_url_domain'), '/') }}/abc123",
   "expiresAt": "2025-07-12T14:00:00Z"
 }
         </pre>
@@ -301,7 +301,7 @@ nav {
       <div class="code-block">
         <strong>GET /{code}</strong><br>
         <p>Redirects to the original URL using the shortened code.</p>
-        <pre>GET https://nrsm.in/{code}</pre>
+        <pre>GET {{ rtrim(config('app.short_url_domain'), '/') }}/{code}</pre>
       </div>
 
       <p><strong>Note:</strong> Expiration times can be set as: 1h, 24h, 7d, 30d, or never.</p>
@@ -354,7 +354,7 @@ nav {
     const newEntry = {
       _token : "{{ csrf_token() }}",
       original_url: url,
-      shortened_url: `https://nrsm.in/${code}`,
+      shortened_url: `${shortUrlDomain}/${code}`,
       expires_at: expiresAt,
     };
 
@@ -434,7 +434,7 @@ function shortenUrl() {
 
   const newEntry = {
     original_url: url,
-    shortened_url: `https://nrsm.in/${code}`,
+    shortened_url: `${shortUrlDomain}/${code}`,
     expires_at: expiresAt,
     clicks: 0,  // Initial click count is 0
   };
@@ -465,6 +465,8 @@ document.addEventListener('DOMContentLoaded', renderResults);
 </script> --}}
 
 <script>
+  const shortUrlDomain = "{{ rtrim(config('app.short_url_domain'), '/') }}";
+
   // Load results from localStorage on page load
   let results = JSON.parse(localStorage.getItem("shortenedUrls")) || [];
 
@@ -548,7 +550,7 @@ document.addEventListener('DOMContentLoaded', renderResults);
 
     const newEntry = {
       original_url: url,
-      shortened_url: `https://nrsm.in/${code}`,
+      shortened_url: `${shortUrlDomain}/${code}`,
       expires_at: expiresAt,
       clicks: 0,  // Initial click count is 0
     };
@@ -570,7 +572,7 @@ document.addEventListener('DOMContentLoaded', renderResults);
       data: {
         _token: "{{ csrf_token() }}",  // CSRF token for security
         original_url: url,
-        shortened_url: `https://nrsm.in/${code}`,
+        shortened_url: `${shortUrlDomain}/${code}`,
         expires_at: expiresAt,
       },
       success: function(response) {

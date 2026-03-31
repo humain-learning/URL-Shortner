@@ -7,6 +7,11 @@ use Str;
 use Carbon\Carbon;
 class ShortenedUrlController extends Controller
 {
+    private function shortDomain(): string
+    {
+        return rtrim((string) config('app.short_url_domain'), '/');
+    }
+
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -42,13 +47,15 @@ class ShortenedUrlController extends Controller
     public function get($code)
     {
         // Find the shortened URL entry by the code
-        $shortenedUrl = ShortenedUrl::where('shortened_url', 'https://nrsm.in/' . $code)->first();
+        $shortenedUrl = ShortenedUrl::where('shortened_url', $this->shortDomain() . '/' . $code)->first();
 
         // If the shortened URL doesn't exist or is expired, show an error page
         if (! $shortenedUrl || new \DateTime() > new \DateTime($shortenedUrl->expires_at)) {
             // You can redirect to an error page or show a message
             return response()->json(['error' => 'URL has expired or does not exist.'], 404);
         }
+
+        $shortenedUrl->increment('clicks');
 
         // Redirect to the original URL
         return redirect()->to($shortenedUrl->original_url);
@@ -72,7 +79,7 @@ class ShortenedUrlController extends Controller
         // Create the shortened URL in the database
         $shortenedUrl = ShortenedUrl::create([
             'original_url' => $validated['original_url'],
-            'shortened_url' => 'https://nrsm.in/' . $code,
+            'shortened_url' => $this->shortDomain() . '/' . $code,
             'expires_at' => $expiresAt,
             'clicks' => 0,  // Initialize click count as 0
         ]);
