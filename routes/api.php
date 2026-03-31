@@ -9,4 +9,5 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:api');
 
-Route::post('/developer/shorten-url', [ShortenedUrlController::class, 'developerShorten']);
+Route::post('/developer/shorten-url', [ShortenedUrlController::class, 'developerShorten'])
+    ->middleware('api.key');
